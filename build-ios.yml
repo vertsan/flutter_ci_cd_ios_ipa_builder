@@ -2,6 +2,22 @@ name: Build iOS IPA
 
 on:
   workflow_dispatch:
+    inputs:
+      api_url:
+        description: 'API URL to write into .env file'
+        required: true
+        default: 'http://32.236.105.9'
+        type: string
+      app_name:
+        description: 'App name used for the .ipa filename'
+        required: true
+        default: 'sbku_app'
+        type: string
+      artifact_name:
+        description: 'Name of the uploaded artifact'
+        required: true
+        default: 'sbku_app_ipa'
+        type: string
 
 jobs:
   build-ipa:
@@ -15,7 +31,7 @@ jobs:
         working-directory: frontend
       - name: Create .env file for CI
         run: |
-          echo "API_URL=http://32.236.105.9" > .env
+          echo "API_URL=${{ inputs.api_url }}" > .env
           echo ".env created successfully:"
           cat .env
         working-directory: frontend
@@ -24,9 +40,9 @@ jobs:
       - run: |
           mkdir -p Payload
           cp -r build/ios/iphoneos/Runner.app Payload/
-          zip -r sbku_app.ipa Payload/
+          zip -r ${{ inputs.app_name }}.ipa Payload/
         working-directory: frontend
       - uses: actions/upload-artifact@v4
         with:
-          name: sbku_app_ipa
-          path: frontend/sbku_app.ipa
+          name: ${{ inputs.artifact_name }}
+          path: frontend/${{ inputs.app_name }}.ipa
